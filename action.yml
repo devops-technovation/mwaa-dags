@@ -68,5 +68,6 @@ runs:
         done
         
     - name: check output
+      shell: bash
       run: |
         echo "modified ?: " ${{ steps.validate_changes.outputs.modified }}
