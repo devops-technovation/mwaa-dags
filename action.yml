@@ -67,5 +67,6 @@ runs:
           fi
         done
         
-        - name: check output
-          run: echo "modified ?: " ${{ steps.validate_changes.outputs.modified }}
+    - name: check output
+      run: |
+        echo "modified ?: " ${{ steps.validate_changes.outputs.modified }}
