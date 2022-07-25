@@ -45,6 +45,8 @@ runs:
       shell: bash
       id: validate_changes
       run: |
+        echo "github sha: ${{github.sha}}"
+        echo "files changed: "  $(git show --stat --oneline  ${{ github.sha }})
         for file in $(git show --stat --oneline  ${{ github.sha }}); do
           if [[ $file == *".py" ]]; then
               dir=$(dirname "${file}")
@@ -57,7 +59,7 @@ runs:
               else
                 ACCOUNT_ID=67890
               fi
-              ROLE_NAME="arn:aws:iam::${ACCOUNT_ID}:role/${{input.division}}-${{input.region}}-${dir}-mwaa-dev-uploader"
+              ROLE_NAME="arn:aws:iam::${ACCOUNT_ID}:role/${{inputs.division}}-${{inputs.region}}-${dir}-mwaa-dev-uploader"
               echo "::set-output name=role_name::$ROLE_NAME"
               echo "::set-output name=bucket_url::$BUCKET_NAME"
               echo "::set-output name=modified::true"
