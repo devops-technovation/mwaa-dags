@@ -1,0 +1,65 @@
+name: "Dags Deployment"
+
+inputs:
+  division:
+    description: 'Division Name'
+    required: false
+    default: itd
+  region:
+    description: 'AWS Region'
+    required: false
+    default: us-west-2
+  data_type:
+    description: 'Data type'
+    required: false
+    default: confidential
+  sec_type:
+    description: 'Seccion Type'
+    required: false
+    default: proccesed
+  bucket_name:
+    description: 'Name of the Airflow bucket'
+    required: false
+    default: de-orchestration
+  dags_path:
+    description: 'Name of the folder where will be stored the dags'
+    required: false
+    default: dag
+
+outputs:
+  role_name:
+    description: "The role to be used for OIDC auth"
+    value: ${{ steps.validate_changes.outputs.role_name }}
+  bucket_url:
+    description: "The bucket where will uploaded the dags"
+    value: ${{ steps.validate_changes.outputs.bucket_url }}
+  modified:
+    description: "Whether there are new or uopdated dags to plublish to S3"
+    value: ${{ steps.validate_changes.outputs.modified }}
+
+runs:
+  using: composite
+  steps:
+
+    - name: Validate changes
+      shell: bash
+      id: validate_changes
+      run: |
+        for file in $(git show --stat --oneline  ${{ github.sha }}); do
+          if [[ $file == *".py" ]]; then
+              dir=$(dirname "${file}")
+              env_prefix=$(echo "${dir}" | head -c 1)
+              datatype_prefix=$(echo "${{inputs.data_type}}" | head -c 1)
+              sectype_prefix=$(echo "${{inputs.sec_type}}" | head -c 1)
+              BUCKET_NAME="${{inputs.division}}-${{inputs.region}}-${env_prefix}${datatype_prefix}${sectype_prefix}-${{inputs.bucket_name}}"
+              if [[ $dir == "prod" ]]; then
+                ACCOUNT_ID=12345
+              else
+                ACCOUNT_ID=67890
+              fi
+              ROLE_NAME="arn:aws:iam::${ACCOUNT_ID}:role/${{input.division}}-${{input.region}}-${dir}-de-orch-builder"
+              echo "::set-output name=role_name::$ROLE_NAME"
+              echo "::set-output name=bucket_url::$BUCKET_NAME"
+              echo "::set-output name=modified::true"
+          fi
+        done
