@@ -38,7 +38,7 @@ outputs:
     value: ${{ steps.validate_changes.outputs.modified }}
 
 runs:
-  using: composite
+  using: "composite"
   steps:
 
     - name: Validate changes
