@@ -78,12 +78,17 @@ runs:
 #         role: "${{steps.validate_changes.outputs.role_name}}"
 #     - run: aws sts get-caller-identity
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        role-to-assume: arn:aws:iam::053342002484:role/github-oidc
-        aws-region: us-east-1
+#     - name: Configure AWS credentials
+#       uses: aws-actions/configure-aws-credentials@v1
+#       with:
+#         role-to-assume: arn:aws:iam::053342002484:role/github-oidc
+#         aws-region: us-east-1
           
+    - uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.2.1
+        terraform_wrapper: false
+         
     - name: upload Dags to S3
       shell: bash
       run: |
