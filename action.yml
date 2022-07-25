@@ -63,6 +63,9 @@ runs:
               echo "::set-output name=role_name::$ROLE_NAME"
               echo "::set-output name=bucket_url::$BUCKET_NAME"
               echo "::set-output name=modified::true"
-              echo "modified ?: " ${{ steps.validate_changes.outputs.modified }}
+              
           fi
         done
+        
+        - name: check output
+          run: echo "modified ?: " ${{ steps.validate_changes.outputs.modified }}
